@@ -96,7 +96,7 @@ npm test
 npm run check
 # exit 0
 npm pack --dry-run
-# 12 files, 39.3 kB
+# 13 files, 126.4 kB
 ```
 
 客户端面板用 `test/harness.js`（示例数据）在 React 18 实际渲染过：

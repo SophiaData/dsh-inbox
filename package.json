@@ -18,6 +18,7 @@
     "client.js",
     "cordis.patch.yml",
     "icon.svg",
+    "docs/panel.png",
     "README.md",
     "LICENSE"
   ],
