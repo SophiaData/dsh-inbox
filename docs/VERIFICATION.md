@@ -58,7 +58,7 @@ DSH_HOME=/tmp/dsh-home dsh --profile inbox-web --port 8899 --no-open
 }
 ```
 
-- 带 cookie 请求该 bundle：`status=200 bytes=75801`，包含 `dsh-inbox-page` 样式标记。说明浏览器半侧被 `dsh-client-modules` 正确登记与分发。
+- 带 cookie 请求该 bundle：`status=200`，约 75 KB，包含 `dsh-inbox-page` 样式标记。说明浏览器半侧被 `dsh-client-modules` 正确登记与分发。
 
 ## 4. Host RPC
 
@@ -96,7 +96,7 @@ npm test
 npm run check
 # exit 0
 npm pack --dry-run
-# 12 files, 39.2 kB
+# 12 files, 39.3 kB
 ```
 
 客户端面板用 `test/harness.js`（示例数据）在 React 18 实际渲染过：
