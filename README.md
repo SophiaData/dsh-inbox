@@ -37,6 +37,12 @@ dsh plugin --profile web add \
 
 把 `web` 换成目标 Profile。使用 HTTPS 源码包可以避开 Git/SSH 的 `Host key verification failed`。安装返回 `restart-required` 时，重启 DSH 生效。
 
+本地开发也可以直接挂载 checkout：
+
+```sh
+dsh plugin --profile web add E:\dsh-inbox
+```
+
 ## 第一次使用
 
 1. 打开左侧栏的 **收件箱** 图标（有未读时图标右上角显示数字）。
