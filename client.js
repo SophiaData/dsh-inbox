@@ -15,6 +15,7 @@ const zh = {
   "stats.summary": "{open} 件待处理 · {sessions} 个会话",
   "stats.pending": "待处理",
   "stats.sessions": "个会话",
+  "stats.unreadLabel": "未读",
   "day.sessions": "{count} 个会话",
   "stats.unread": "未读 {count}",
   "action.refresh": "刷新",
@@ -22,6 +23,7 @@ const zh = {
   "action.markRead": "标记已读",
   "action.submitting": "发送中…",
   "action.markAllRead": "全部已读",
+  "action.nothingUnread": "没有未读事项",
   "action.settings": "设置",
   "action.close": "关闭",
   "action.cancel": "取消",
@@ -164,6 +166,7 @@ const en = {
   "stats.summary": "{open} pending · {sessions} sessions",
   "stats.pending": "pending",
   "stats.sessions": "sessions",
+  "stats.unreadLabel": "unread",
   "day.sessions": "{count} sessions",
   "stats.unread": "{count} unread",
   "action.refresh": "Refresh",
@@ -171,6 +174,7 @@ const en = {
   "action.markRead": "Mark read",
   "action.submitting": "Sending…",
   "action.markAllRead": "Mark all read",
+  "action.nothingUnread": "Nothing unread",
   "action.settings": "Settings",
   "action.close": "Close",
   "action.cancel": "Cancel",
@@ -488,6 +492,8 @@ const css = `
 .dsh-inbox-band.k-interruption{background:var(--dsw-alias-state-error-primary,#DC2626);}
 .dsh-inbox-band.k-delivery{background:var(--dsw-alias-state-success-primary,#059669);}
 .dsh-inbox-sheet-main{display:flex;flex-direction:column;gap:4px;min-width:0;}
+.dsh-inbox-sheet-titleline{display:flex;align-items:center;gap:7px;min-width:0;}
+.dsh-inbox-unread-dot{flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:var(--dsw-alias-brand-primary,#2563EB);}
 .dsh-inbox-sheet-title{font-size:14px;font-weight:650;line-height:1.35;color:var(--dsw-alias-label-primary,#111827);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .dsh-inbox-sheet-summary{font-size:12px;line-height:1.4;color:var(--dsw-alias-label-secondary,#6B7280);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .dsh-inbox-sheet-right{display:flex;align-items:center;gap:14px;}
@@ -847,7 +853,9 @@ function SessionSheet({ thread, entries, open, openItems, onToggle, onToggleItem
     h("button", { type: "button", className: "dsh-inbox-sheet-head", "aria-expanded": open, onClick: onToggle },
       h("span", { className: cx("dsh-inbox-band", `k-${dominant}`) }),
       h("span", { className: "dsh-inbox-sheet-main" },
-        h("span", { className: "dsh-inbox-sheet-title" }, thread.title || thread.sessionId),
+        h("span", { className: "dsh-inbox-sheet-titleline" },
+          thread.counts.unread > 0 ? h("span", { className: "dsh-inbox-unread-dot", title: t("badge.unread") }) : null,
+          h("span", { className: "dsh-inbox-sheet-title" }, thread.title || thread.sessionId)),
         latest
           ? h("span", { className: "dsh-inbox-sheet-summary" }, `${kindLabel(kindOf(latest), t)} · ${shortItemTitle(latest, t)}`)
           : null),
@@ -1202,6 +1210,7 @@ function InboxPage({ useInbox, act, request, openSession, t }) {
   const settledCount = (snapshot.stats?.done ?? 0) + (snapshot.stats?.ignored ?? 0);
   const archiveCount = snapshot.stats?.archived ?? 0;
   const openCount = snapshot.stats?.open?.total ?? 0;
+  const unreadCount = snapshot.stats?.open?.unread ?? 0;
   const openSessionCount = (snapshot.threads ?? []).filter((thread) => thread.counts.open > 0).length;
 
   function itemMatchesFilter(item) {
@@ -1266,19 +1275,6 @@ function InboxPage({ useInbox, act, request, openSession, t }) {
     }
   }
 
-  async function markThreadRead(thread) {
-    const unread = thread.itemIds
-      .map((id) => itemsById.get(id))
-      .filter((item) => item !== undefined && item.state === "open" && item.readAt === null);
-    for (const item of unread) {
-      try {
-        await act("inbox.mark-read", { id: item.id });
-      } catch {
-        // Reading is best-effort; the list still shows the item.
-      }
-    }
-  }
-
   function toggleSession(sessionId) {
     setOpenSessions((current) => {
       const next = new Set(current);
@@ -1288,18 +1284,24 @@ function InboxPage({ useInbox, act, request, openSession, t }) {
     });
   }
 
+  /** Opening an entry is the moment its content is actually read. */
   function toggleItem(itemId) {
+    const opening = !openItems.has(itemId);
     setOpenItems((current) => {
       const next = new Set(current);
       if (next.has(itemId)) next.delete(itemId);
       else next.add(itemId);
       return next;
     });
+    if (!opening) return;
+    const item = itemsById.get(itemId);
+    if (item !== undefined && item.state === "open" && item.readAt === null) {
+      void act("inbox.mark-read", { id: itemId }).catch(() => {});
+    }
   }
 
   function selectThread(thread) {
     toggleSession(thread.sessionId);
-    void markThreadRead(thread);
   }
 
   async function handleAnswer(payload) {
@@ -1402,6 +1404,7 @@ function InboxPage({ useInbox, act, request, openSession, t }) {
   }
 
   async function handleMarkAllRead() {
+    if (unreadCount === 0) return;
     if (!window.confirm(t("confirm.markAll"))) return;
     try {
       await act("inbox.mark-all-read", {});
@@ -1423,11 +1426,18 @@ function InboxPage({ useInbox, act, request, openSession, t }) {
       h("div", { className: "dsh-inbox-head-right" },
         h("div", { className: "dsh-inbox-stats" },
           h("div", { className: "dsh-inbox-stat" }, h("b", null, String(openCount)), h("span", null, t("stats.pending"))),
-          h("div", { className: "dsh-inbox-stat" }, h("b", null, String(openSessionCount)), h("span", null, t("stats.sessions")))),
+          h("div", { className: "dsh-inbox-stat" }, h("b", null, String(openSessionCount)), h("span", null, t("stats.sessions"))),
+          unreadCount > 0 ? h("div", { className: "dsh-inbox-stat" }, h("b", null, String(unreadCount)), h("span", null, t("stats.unreadLabel"))) : null),
         h("div", { className: "dsh-inbox-header-actions" },
         h("button", { type: "button", className: "dsh-inbox-btn", disabled: busy === "refresh", onClick: () => run("refresh", async () => { try { await act("inbox.snapshot", {}); } catch (failure) { showNotice("error", t("error.action", { message: failure?.message ?? String(failure) })); } }) },
           h(RefreshGlyph, { size: 13 }), busy === "refresh" ? t("action.refreshing") : t("action.refresh")),
-        h("button", { type: "button", className: "dsh-inbox-btn", onClick: handleMarkAllRead }, h(CheckGlyph, { size: 13 }), t("action.markAllRead")),
+        h("button", {
+          type: "button",
+          className: "dsh-inbox-btn",
+          disabled: unreadCount === 0,
+          title: unreadCount === 0 ? t("action.nothingUnread") : undefined,
+          onClick: handleMarkAllRead,
+        }, h(CheckGlyph, { size: 13 }), t("action.markAllRead")),
         h("button", { type: "button", className: "dsh-inbox-btn", onClick: () => setSettings(true) }, h(GearGlyph, { size: 13 }), t("action.settings"))))),
     snapshot.loading && items.length === 0
       ? h("div", { className: "dsh-inbox-layout" },

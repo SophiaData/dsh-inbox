@@ -26,7 +26,7 @@ DSH 原生的待办分散在各自会话里：问题只在当前会话输入框�
 在 DSH 的插件管理器里添加 Bundle：
 
 ```text
-https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.1
+https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.2
 ```
 
 桌面版的 Profile 由 Electron 管理，不要用下面的 CLI 命令向 `desktop` Profile 安装。
@@ -35,13 +35,13 @@ https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.1
 
 ```sh
 dsh plugin --profile web add \
-  "https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.1" \
+  "https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.2" \
   --registry https://registry.npmjs.org/
 ```
 
 把 `web` 换成目标 Profile。使用 HTTPS 源码包可以避开 Git/SSH 的 `Host key verification failed`。安装返回 `restart-required` 时，重启 DSH 生效。
 
-`v0.1.1` 是发布 tag，装的是固定版本；升级时把 tag 换成最新版本（见仓库 Releases）。想跟随主干可改用 `refs/heads/main`。
+`v0.1.2` 是发布 tag，装的是固定版本；升级时把 tag 换成最新版本（见仓库 Releases）。想跟随主干可改用 `refs/heads/main`。
 
 本地开发也可以直接挂载 checkout：
 
@@ -88,6 +88,8 @@ dsh plugin --profile web add E:\dsh-inbox
 排序优先级：`open` 问题 > 中断 > `continued` 问题 > 交付；同优先级未读在前，再按更新时间倒序。
 
 「查看」只写 `readAt`，不会改变 `state`。面板轮询只读快照，因此打开面板不会结算任何条目。
+
+未读只在**展开具体条目**时清除；「全部已读」只清未读标记，不结算、不移出列表。会话卡片标题前的蓝点表示该会话还有未读条目。
 
 ## 原地处理的边界
 
