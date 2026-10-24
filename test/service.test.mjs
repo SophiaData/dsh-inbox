@@ -4,6 +4,7 @@ import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { InboxService } from '../lib/service.js';
+import { normalizePath } from '../lib/paths.js';
 
 function summary(overrides = {}) {
   return {
@@ -100,7 +101,8 @@ test('scan backfills delivery, question, and interruption items', async () => {
     assert.deepEqual(kinds, ['delivery', 'interruption', 'question']);
     const question = snapshot.items.find(item => item.kind === 'question');
     assert.equal(question.question.state, 'continued');
-    assert.equal(question.projectId, join(dir, 'projects', 'alpha'));    const delivery = snapshot.items.find(item => item.kind === 'delivery');
+    assert.equal(question.projectId, normalizePath(join(dir, 'projects', 'alpha')));
+    const delivery = snapshot.items.find(item => item.kind === 'delivery');
     assert.equal(delivery.delivery.files[0].path, 'docs/report.md');
     const interruption = snapshot.items.find(item => item.kind === 'interruption');
     assert.equal(interruption.interruption.kind, 'error');
