@@ -111,3 +111,11 @@ npm pack --dry-run
 - 未在 rc.3 运行时启动；rc.3 兼容通过 `engines.dsh` 范围与方法存在性探测保障，需在 rc.3 发布后补一次真机回归。
 - 未用真实模型会话触发 `open` 问题与宿主崩溃；相关路径用构造的 `SessionEvent` 日志覆盖（单测）。
 - Electron 桌面版未安装验证；安装方式与 `dsh-mcp-skill-manager` 相同的 Bundle URL 路径。
+
+## 7. GitHub 远端与 CI
+
+- 仓库：`https://github.com/SophiaData/dsh-inbox`，默认分支 `main`。
+- 推送提交：`312f228`；远端 `refs/heads/main` 与本地一致。
+- CI：`CI` workflow run `40054093919` 完成，结论 `success`。
+- 认证：使用仓库级 deploy key（`Allow write access`）；私钥只在本会话临时目录，未写入仓库。
+
