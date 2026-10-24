@@ -12,6 +12,10 @@ const zh = {
   title: "收件箱",
   subtitle: "跨项目集中处理等待你回答、查收和关注的事。",
   "stats.open": "待处理 {count}",
+  "stats.summary": "{open} 件待处理 · {sessions} 个会话",
+  "stats.pending": "待处理",
+  "stats.sessions": "个会话",
+  "day.sessions": "{count} 个会话",
   "stats.unread": "未读 {count}",
   "action.refresh": "刷新",
   "action.refreshing": "刷新中…",
@@ -41,6 +45,14 @@ const zh = {
   "filter.delivery": "待查收",
   "filter.interruption": "中断",
   "filter.settled": "已处理",
+  "filter.history": "历史",
+  "day.today": "今天",
+  "day.yesterday": "昨天",
+  "day.week": "本周",
+  "day.earlier": "更早",
+  "thread.pending": "{count} 条待处理",
+  "thread.historyCount": "历史 {count} 条",
+  "empty.history": "没有历史记录。",
   "project.all": "全部项目",
   "project.unassigned": "未分配",
   "search.placeholder": "搜索问题、文件、会话…",
@@ -149,6 +161,10 @@ const en = {
   title: "Inbox",
   subtitle: "One place for questions, deliverables, and interrupted turns across projects.",
   "stats.open": "{count} open",
+  "stats.summary": "{open} pending · {sessions} sessions",
+  "stats.pending": "pending",
+  "stats.sessions": "sessions",
+  "day.sessions": "{count} sessions",
   "stats.unread": "{count} unread",
   "action.refresh": "Refresh",
   "action.refreshing": "Refreshing…",
@@ -178,6 +194,14 @@ const en = {
   "filter.delivery": "Deliverables",
   "filter.interruption": "Interruptions",
   "filter.settled": "Settled",
+  "filter.history": "History",
+  "day.today": "Today",
+  "day.yesterday": "Yesterday",
+  "day.week": "This week",
+  "day.earlier": "Earlier",
+  "thread.pending": "{count} pending",
+  "thread.historyCount": "History {count}",
+  "empty.history": "No history yet.",
   "project.all": "All projects",
   "project.unassigned": "Unassigned",
   "search.placeholder": "Search questions, files, sessions…",
@@ -314,7 +338,25 @@ const css = `
 .dsh-inbox-notice-error{border-color:var(--dsw-alias-state-error-primary,#d1242f);color:var(--dsw-alias-state-error-primary,#d1242f);}
 .dsh-inbox-notice-ok{color:var(--dsw-alias-state-success-primary,#18864b);}
 .dsh-inbox-notice-warn{border-color:var(--dsw-alias-state-warning-primary,#b26a00);color:var(--dsw-alias-state-warning-primary,#b26a00);}
-.dsh-inbox-layout{display:grid;grid-template-columns:190px minmax(290px,370px) minmax(0,1fr);gap:12px;flex:1;min-height:0;}
+.dsh-inbox-layout{display:grid;grid-template-columns:minmax(280px,380px) minmax(0,1fr);gap:12px;flex:1;min-height:0;}
+.dsh-inbox-group{display:flex;flex-direction:column;gap:1px;padding:2px 0 8px;}
+.dsh-inbox-group-title{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 9px 4px;font-size:11px;font-weight:600;color:var(--dsw-alias-label-tertiary,#8a929c);}
+.dsh-inbox-thread{border:0;border-left:3px solid transparent;border-radius:8px;background:transparent;color:inherit;cursor:pointer;padding:8px 10px;font:inherit;text-align:left;width:100%;display:flex;align-items:flex-start;gap:8px;}
+.dsh-inbox-thread:hover{background:var(--dsw-alias-bg-layer-2,#f4f6f8);}
+.dsh-inbox-thread.is-selected{background:var(--dsw-alias-bg-layer-2,#f4f6f8);border-left-color:var(--dsw-alias-brand-primary,#4677f5);}
+.dsh-inbox-thread-dot-empty{flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:transparent;}
+.dsh-inbox-thread-main{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;}
+.dsh-inbox-thread-title{font-size:13px;font-weight:600;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.dsh-inbox-thread-meta{font-size:10px;color:var(--dsw-alias-label-tertiary,#8a929c);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dsh-inbox-thread-count{flex:0 0 auto;min-width:20px;text-align:center;border-radius:999px;background:var(--dsw-alias-bg-layer-2,#f4f6f8);color:var(--dsw-alias-label-secondary,#59636e);font-size:10px;padding:1px 6px;}
+.dsh-inbox-thread-item{border:1px solid var(--dsw-alias-border-l1,#d9dde3);border-left:3px solid transparent;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--dsw-alias-bg-layer-1,#fff);}
+.dsh-inbox-thread-item.k-question{border-left-color:var(--dsw-alias-brand-primary,#4677f5);}
+.dsh-inbox-thread-item.k-interruption{border-left-color:var(--dsw-alias-state-error-primary,#d1242f);}
+.dsh-inbox-thread-item.k-delivery{border-left-color:var(--dsw-alias-state-success-primary,#18864b);}
+.dsh-inbox-thread-item.is-settled{opacity:.7;}
+.dsh-inbox-thread-item-head{display:flex;align-items:center;gap:6px;min-width:0;}
+.dsh-inbox-thread-item-title{flex:1;min-width:0;font-size:13px;font-weight:600;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dsh-inbox-thread-item-time{flex:0 0 auto;font-size:10px;color:var(--dsw-alias-label-tertiary,#8a929c);}
 .dsh-inbox-rail{border:1px solid var(--dsw-alias-border-l1,#d9dde3);border-radius:10px;background:var(--dsw-alias-bg-layer-1,#fff);padding:8px;display:flex;flex-direction:column;gap:2px;min-height:0;overflow:auto;}
 .dsh-inbox-rail-title{font-size:11px;font-weight:600;color:var(--dsw-alias-label-tertiary,#8a929c);text-transform:uppercase;letter-spacing:.05em;padding:6px 8px 4px;}
 .dsh-inbox-rail-item{border:0;border-radius:6px;background:transparent;color:var(--dsw-alias-label-secondary,#59636e);cursor:pointer;padding:7px 8px;font:inherit;font-size:12px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -410,6 +452,78 @@ const css = `
 @media(max-width:1100px){.dsh-inbox-layout{grid-template-columns:160px minmax(250px,320px) minmax(0,1fr);}}
 @media(max-width:900px){.dsh-inbox-layout{grid-template-columns:minmax(0,1fr);}.dsh-inbox-rail{display:none;}.dsh-inbox-list-pane{max-height:42%;}.dsh-inbox-detail{min-height:0;}}
 @media(max-width:680px){.dsh-inbox-page{padding:14px}.dsh-inbox-header{align-items:stretch;flex-direction:column}.dsh-inbox-detail-head{flex-direction:column}.dsh-inbox-detail-actions{justify-content:flex-start}.dsh-inbox-kv{grid-template-columns:1fr}.dsh-inbox-root-add{flex-direction:column}}
+/* ---------- card feed ---------- */
+.dsh-inbox-page{max-width:880px;margin:0 auto;padding:34px 28px 64px;gap:20px;}
+.dsh-inbox-header{align-items:flex-end;gap:20px;}
+.dsh-inbox-brand{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.dsh-inbox-title{flex-direction:row;align-items:baseline;gap:14px;}
+.dsh-inbox-title h1{font-size:22px;font-weight:700;letter-spacing:-.02em;}
+.dsh-inbox-subtitle{font-size:12px;color:var(--dsw-alias-label-secondary,#6B7280);}
+.dsh-inbox-scan{font-size:11px;color:var(--dsw-alias-label-tertiary,#9CA3AF);}
+.dsh-inbox-head-right{display:flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:flex-end;}
+.dsh-inbox-stats{display:flex;gap:26px;}
+.dsh-inbox-stat{display:flex;flex-direction:column;gap:3px;text-align:right;}
+.dsh-inbox-stat b{font-size:26px;font-weight:750;letter-spacing:-.03em;line-height:1;color:var(--dsw-alias-label-primary,#111827);}
+.dsh-inbox-stat span{font-size:11px;color:var(--dsw-alias-label-secondary,#6B7280);}
+.dsh-inbox-toolbar{position:sticky;top:0;z-index:6;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--dsw-alias-bg-layer-1,#fff);border:1px solid var(--dsw-alias-border-l1,#E5E7EB);border-radius:12px;padding:6px;}
+.dsh-inbox-filters{display:flex;gap:2px;flex-wrap:wrap;}
+.dsh-inbox-chip{padding:7px 12px;border-radius:8px;font-size:12px;color:var(--dsw-alias-label-secondary,#6B7280);}
+.dsh-inbox-chip:hover{background:var(--dsw-alias-bg-layer-2,#F3F4F6);}
+.dsh-inbox-chip[aria-selected="true"]{background:var(--dsw-alias-label-primary,#111827);color:var(--dsw-alias-bg-layer-1,#fff);font-weight:600;}
+.dsh-inbox-chip[aria-selected="true"] .dsh-inbox-chip-count{color:var(--dsw-alias-bg-layer-1,#fff);opacity:.75;}
+.dsh-inbox-chip-count{font-size:10.5px;font-variant-numeric:tabular-nums;}
+.dsh-inbox-search{flex:1;min-width:170px;display:flex;align-items:center;gap:6px;padding:0 10px;height:32px;border:1px solid var(--dsw-alias-border-l1,#E5E7EB);border-radius:8px;background:var(--dsw-alias-bg-layer-2,#FAFAFA);color:var(--dsw-alias-label-tertiary,#9CA3AF);}
+.dsh-inbox-search .dsh-inbox-input{border:0;padding:0;height:auto;background:transparent;outline:none;}
+.dsh-inbox-project-filter{max-width:190px;height:32px;border-radius:8px;}
+.dsh-inbox-sheet-head:focus-visible,.dsh-inbox-entry-head:focus-visible,.dsh-inbox-chip:focus-visible,.dsh-inbox-btn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#2563EB);outline-offset:-2px;}
+.dsh-inbox-feed{display:flex;flex-direction:column;padding-top:6px;}
+.dsh-inbox-day{display:flex;flex-direction:column;}
+.dsh-inbox-day-label{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:24px 4px 10px;font-size:12px;font-weight:600;color:var(--dsw-alias-label-tertiary,#9CA3AF);}
+.dsh-inbox-day-count{font-size:11px;font-weight:500;}
+.dsh-inbox-sheet{border:1px solid var(--dsw-alias-border-l1,#E5E7EB);border-radius:14px;background:var(--dsw-alias-bg-layer-1,#fff);margin-bottom:9px;box-shadow:0 1px 2px rgba(17,24,39,.04);overflow:hidden;}
+.dsh-inbox-sheet-head{display:grid;grid-template-columns:4px minmax(0,1fr) auto;gap:16px;align-items:center;width:100%;padding:15px 18px;border:0;background:transparent;cursor:pointer;text-align:left;font:inherit;color:inherit;}
+.dsh-inbox-sheet-head:hover{background:var(--dsw-alias-bg-layer-2,#FAFAFA);}
+.dsh-inbox-band{width:4px;height:34px;border-radius:2px;background:var(--dsw-alias-label-tertiary,#9CA3AF);}
+.dsh-inbox-band.k-question{background:var(--dsw-alias-brand-primary,#2563EB);}
+.dsh-inbox-band.k-interruption{background:var(--dsw-alias-state-error-primary,#DC2626);}
+.dsh-inbox-band.k-delivery{background:var(--dsw-alias-state-success-primary,#059669);}
+.dsh-inbox-sheet-main{display:flex;flex-direction:column;gap:4px;min-width:0;}
+.dsh-inbox-sheet-title{font-size:14px;font-weight:650;line-height:1.35;color:var(--dsw-alias-label-primary,#111827);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dsh-inbox-sheet-summary{font-size:12px;line-height:1.4;color:var(--dsw-alias-label-secondary,#6B7280);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dsh-inbox-sheet-right{display:flex;align-items:center;gap:14px;}
+.dsh-inbox-sheet-counts{display:flex;gap:6px;}
+.dsh-inbox-count{font-size:11px;font-weight:600;border-radius:7px;padding:4px 8px;background:var(--dsw-alias-bg-layer-2,#F3F4F6);color:var(--dsw-alias-label-secondary,#6B7280);white-space:nowrap;}
+.dsh-inbox-count.k-question{background:rgba(37,99,235,.09);color:#2563EB;}
+.dsh-inbox-count.k-interruption{background:rgba(220,38,38,.09);color:#DC2626;}
+.dsh-inbox-count.k-delivery{background:rgba(5,150,105,.09);color:#059669;}
+.dsh-inbox-sheet-time{font-size:11px;color:var(--dsw-alias-label-tertiary,#9CA3AF);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.dsh-inbox-chevron{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;font-size:15px;line-height:1;color:var(--dsw-alias-label-tertiary,#9CA3AF);}
+.dsh-inbox-sheet-body{border-top:1px solid var(--dsw-alias-border-l1,#E5E7EB);padding:8px 14px 12px;background:var(--dsw-alias-bg-layer-2,#FAFAFA);display:flex;flex-direction:column;gap:2px;}
+.dsh-inbox-entry{border-radius:9px;}
+.dsh-inbox-entry.is-open{background:var(--dsw-alias-bg-layer-1,#fff);box-shadow:0 1px 2px rgba(17,24,39,.05);}
+.dsh-inbox-entry-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto 22px;align-items:center;gap:9px;width:100%;padding:9px 10px;border:0;background:transparent;cursor:pointer;text-align:left;font:inherit;color:inherit;border-radius:9px;}
+.dsh-inbox-entry-head:hover{background:var(--dsw-alias-bg-layer-2,#F3F4F6);}
+.dsh-inbox-entry-kind{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--dsw-alias-label-secondary,#6B7280);white-space:nowrap;}
+.dsh-inbox-entry.k-question .dsh-inbox-entry-kind{color:var(--dsw-alias-brand-primary,#2563EB);}
+.dsh-inbox-entry.k-interruption .dsh-inbox-entry-kind{color:var(--dsw-alias-state-error-primary,#DC2626);}
+.dsh-inbox-entry.k-delivery .dsh-inbox-entry-kind{color:var(--dsw-alias-state-success-primary,#059669);}
+.dsh-inbox-entry-title{font-size:12.5px;line-height:1.4;color:var(--dsw-alias-label-primary,#111827);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dsh-inbox-entry-note{font-size:11px;color:var(--dsw-alias-label-tertiary,#9CA3AF);white-space:nowrap;}
+.dsh-inbox-entry-time{font-size:11px;color:var(--dsw-alias-label-tertiary,#9CA3AF);font-variant-numeric:tabular-nums;}
+.dsh-inbox-entry-body{padding:2px 10px 14px;display:flex;flex-direction:column;gap:10px;}
+.dsh-inbox-entry-body .dsh-inbox-section{border:0;padding:0;background:transparent;gap:9px;}
+.dsh-inbox-entry.is-settled .dsh-inbox-entry-title{color:var(--dsw-alias-label-tertiary,#9CA3AF);}
+.dsh-inbox-empty{padding:64px 20px;gap:10px;}
+@media(max-width:760px){
+.dsh-inbox-page{padding:20px 16px 48px;}
+.dsh-inbox-head-right{gap:14px;}
+.dsh-inbox-stats{gap:16px;}
+.dsh-inbox-sheet-head{gap:12px;padding:13px 14px;}
+.dsh-inbox-sheet-counts{display:none;}
+.dsh-inbox-sheet-time{display:none;}
+.dsh-inbox-search{min-width:0;}
+.dsh-inbox-toolbar{align-items:stretch;}
+}
 `;
 
 function cx(...values) {
@@ -485,9 +599,12 @@ function itemTitle(item, t) {
   return `${t("item.interruption")} · ${reasonLabel(item.interruption?.kind, t)}`;
 }
 
-function projectName(snapshot, projectId) {
-  if (!projectId) return null;
-  return (snapshot.projects ?? []).find((project) => project.id === projectId)?.name ?? null;
+/** File paths are useful in the entry row but swamp the one-line session summary. */
+function shortItemTitle(item, t) {
+  const title = itemTitle(item, t);
+  if (item.kind !== "delivery") return title;
+  const cut = Math.max(title.lastIndexOf("\\"), title.lastIndexOf("/"));
+  return cut >= 0 ? title.slice(cut + 1) : title;
 }
 
 function IconBase({ size = 16, children, viewBox = "0 0 24 24" }) {
@@ -657,60 +774,112 @@ function Toast({ notice, onClose }) {
   }, notice.text);
 }
 
-function ProjectRail({ snapshot, items, projectFilter, onProject, t }) {
-  const counts = new Map();
-  let all = 0;
-  let unassigned = 0;
-  for (const item of items) {
-    if (item.state !== "open") continue;
-    all += 1;
-    if (!item.projectId) unassigned += 1;
-    else counts.set(item.projectId, (counts.get(item.projectId) ?? 0) + 1);
-  }
-  return h("aside", { className: "dsh-inbox-rail", "aria-label": t("settings.projects") },
-    h("div", { className: "dsh-inbox-rail-title" }, t("settings.projects")),
-    h("button", {
-      type: "button",
-      className: "dsh-inbox-rail-item",
-      "aria-current": projectFilter === "all",
-      onClick: () => onProject("all"),
-    }, h("span", { className: "dsh-inbox-rail-name" }, t("project.all")), h("span", { className: "dsh-inbox-rail-count" }, String(all))),
-    (snapshot.projects ?? []).map((project) => h("button", {
-      type: "button",
-      key: project.id,
-      className: "dsh-inbox-rail-item",
-      "aria-current": projectFilter === project.id,
-      title: project.path,
-      onClick: () => onProject(project.id),
-    },
-      h("span", { className: "dsh-inbox-rail-name" }, project.name),
-      h("span", { className: "dsh-inbox-rail-count" }, String(counts.get(project.id) ?? 0)))),
-    h("button", {
-      type: "button",
-      className: "dsh-inbox-rail-item",
-      "aria-current": projectFilter === "__none",
-      onClick: () => onProject("__none"),
-    }, h("span", { className: "dsh-inbox-rail-name" }, t("project.unassigned")), h("span", { className: "dsh-inbox-rail-count" }, String(unassigned))));
+function formatClock(timestamp) {
+  const date = new Date(timestamp);
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
-function ItemRow({ item, selected, projectLabel, onSelect, t, now }) {
-  const unread = item.readAt === null && item.state === "open";
-  return h("button", {
-    type: "button",
-    className: cx("dsh-inbox-item", `k-${kindOf(item)}`, item.state !== "open" && "is-settled"),
-    "aria-current": selected,
-    onClick: () => onSelect(item),
-  },
-    h("div", { className: "dsh-inbox-item-top" },
-      h("span", { style: { color: item.kind === "interruption" ? "var(--dsw-alias-state-error-primary,#d1242f)" : item.kind === "delivery" ? "var(--dsw-alias-state-success-primary,#18864b)" : "var(--dsw-alias-brand-primary,#4677f5)", display: "inline-flex" } },
-        h(KindIcon, { kind: kindOf(item), size: 14 })),
-      h("span", { className: "dsh-inbox-item-title" }, itemTitle(item, t)),
-      unread ? h("span", { className: "dsh-inbox-dot", title: t("badge.unread") }) : null),
-    h("div", { className: "dsh-inbox-item-meta" },
-      h("span", { className: "dsh-inbox-tag" }, kindLabel(kindOf(item), t)),
-      projectLabel ? h("span", { className: "dsh-inbox-tag" }, projectLabel) : h("span", { className: "dsh-inbox-tag" }, t("project.unassigned")),
-      item.sessionTitle ? h("span", { style: { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "160px" }, title: item.sessionTitle }, item.sessionTitle) : null,
-      h("span", null, formatRelative(item.updatedAt, t, now))));
+function dayBucket(timestamp, now) {
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+  const today = start.getTime();
+  if (timestamp >= today) return 0;
+  if (timestamp >= today - 86_400_000) return 1;
+  if (timestamp >= today - 6 * 86_400_000) return 2;
+  return 3;
+}
+
+const DAY_LABEL_KEYS = ["day.today", "day.yesterday", "day.week", "day.earlier"];
+
+function FeedEntry({ item, open, onToggle, busy, onSettle, onAnswer, onReply, onPreview, onReveal, t, capabilities, now }) {
+  const settled = item.state !== "open";
+  const note = item.kind === "delivery"
+    ? `${item.delivery?.files?.length ?? 0} 个文件`
+    : item.kind === "interruption" ? reasonLabel(item.interruption?.kind, t) : "";
+  return h("section", { className: cx("dsh-inbox-entry", `k-${kindOf(item)}`, settled && "is-settled", open && "is-open") },
+    h("button", { type: "button", className: "dsh-inbox-entry-head", "aria-expanded": open, onClick: onToggle },
+      h("span", { className: "dsh-inbox-entry-kind" },
+        h(KindIcon, { kind: kindOf(item), size: 13 }),
+        kindLabel(kindOf(item), t)),
+      h("span", { className: "dsh-inbox-entry-title" }, itemTitle(item, t)),
+      note ? h("span", { className: "dsh-inbox-entry-note" }, note) : null,
+      item.state === "archived" ? h("span", { className: "dsh-inbox-entry-note" }, t("filter.history")) : null,
+      h("time", { className: "dsh-inbox-entry-time" }, formatClock(item.updatedAt)),
+      h("span", { className: "dsh-inbox-chevron" }, open ? "−" : "+")),
+    open
+      ? h("div", { className: "dsh-inbox-entry-body" },
+          item.kind === "question" && !settled
+            ? h(QuestionBlock, { item, busy, onSubmit: onAnswer, t, disabled: capabilities.questions === false })
+            : null,
+          item.kind === "delivery"
+            ? h(DeliveryBlock, {
+                item,
+                busy,
+                onPreview: (path) => onPreview(item, path),
+                onReveal: (path) => onReveal(item, path),
+                onSettle: (action) => onSettle(item, action),
+                t,
+                canReveal: capabilities.reveal !== false,
+                settled,
+              })
+            : null,
+          item.kind === "interruption"
+            ? h(InterruptionBlock, {
+                item,
+                busy,
+                onContinue: (text) => onReply(item, text),
+                onSettle: (action) => onSettle(item, action),
+                t,
+                canContinue: capabilities.prompt !== false,
+                settled,
+              })
+            : null,
+          item.kind === "question" && settled
+            ? h("div", { className: "dsh-inbox-detail-text" }, t("detail.settled"))
+            : null)
+      : null);
+}
+
+function SessionSheet({ thread, entries, open, openItems, onToggle, onToggleItem, busy, onSettle, onAnswer, onReply, onPreview, onReveal, t, capabilities, now }) {
+  const latest = entries[0];
+  const dominant = thread.counts.question > 0 ? "question" : thread.counts.interruption > 0 ? "interruption" : thread.counts.delivery > 0 ? "delivery" : "settled";
+  return h("article", { className: cx("dsh-inbox-sheet", open && "is-open") },
+    h("button", { type: "button", className: "dsh-inbox-sheet-head", "aria-expanded": open, onClick: onToggle },
+      h("span", { className: cx("dsh-inbox-band", `k-${dominant}`) }),
+      h("span", { className: "dsh-inbox-sheet-main" },
+        h("span", { className: "dsh-inbox-sheet-title" }, thread.title || thread.sessionId),
+        latest
+          ? h("span", { className: "dsh-inbox-sheet-summary" }, `${kindLabel(kindOf(latest), t)} · ${shortItemTitle(latest, t)}`)
+          : null),
+      h("span", { className: "dsh-inbox-sheet-right" },
+        h("span", { className: "dsh-inbox-sheet-counts" },
+          [["question", thread.counts.question], ["delivery", thread.counts.delivery], ["interruption", thread.counts.interruption]]
+            .filter(([, count]) => count > 0)
+            .map(([kind, count]) => h("span", {
+              key: kind,
+              className: cx("dsh-inbox-count", `k-${kind}`),
+              title: `${count} ${kindLabel(kind, t)}`,
+            }, `${kindLabel(kind, t)} ${count}`))),
+        h("time", { className: "dsh-inbox-sheet-time" }, formatClock(thread.latestAt)),
+        h("span", { className: "dsh-inbox-chevron" }, open ? "−" : "+"))),
+    open
+      ? h("div", { className: "dsh-inbox-sheet-body" },
+          entries.map((item) => h(FeedEntry, {
+            key: item.id,
+            item,
+            open: openItems.has(item.id),
+            onToggle: () => onToggleItem(item.id),
+            busy,
+            onSettle,
+            onAnswer,
+            onReply,
+            onPreview,
+            onReveal,
+            t,
+            capabilities,
+            now,
+          })))
+      : null);
 }
 
 function QuestionBlock({ item, busy, onSubmit, t, disabled = false }) {
@@ -909,63 +1078,6 @@ function InterruptionBlock({ item, busy, onContinue, onSettle, t, canContinue = 
       }, h(XGlyph, { size: 13 }), t("action.ignore"))));
 }
 
-function DetailPane({ item, snapshot, busy, onOpenSession, onSettle, onAnswer, onReply, onPreview, onReveal, onAssign, onMarkRead, t, now }) {
-  if (!item) {
-    return h("section", { className: "dsh-inbox-detail" },
-      h("div", { className: "dsh-inbox-empty" },
-        h(InboxGlyph, { size: 30 }),
-        h("span", null, t("detail.noSelection")),
-        h("span", { className: "dsh-inbox-empty-hint" }, t("empty.hint"))));
-  }
-  const project = projectName(snapshot, item.projectId);
-  const settled = item.state !== "open";
-  const capabilities = snapshot.runtime?.capabilities ?? {};
-  return h("section", { className: "dsh-inbox-detail" },
-    h("header", { className: "dsh-inbox-detail-head" },
-      h("div", { className: "dsh-inbox-detail-title" },
-        h("h2", null, itemTitle(item, t)),
-        h("div", { className: "dsh-inbox-detail-meta" },
-          h("span", { className: "dsh-inbox-tag" }, kindLabel(kindOf(item), t)),
-          settled ? h("span", { className: "dsh-inbox-tag dsh-inbox-tag-ok" }, stateLabel(item, t)) : h("span", { className: "dsh-inbox-tag dsh-inbox-tag-brand" }, t("badge.open")),
-          item.sessionTitle ? h("span", { title: item.sessionTitle }, item.sessionTitle) : null,
-          h("span", null, formatRelative(item.updatedAt, t, now)))),
-      h("div", { className: "dsh-inbox-detail-actions" },
-        h("select", {
-          className: "dsh-inbox-select",
-          value: item.projectId ?? "",
-          disabled: busy === "assign",
-          onChange: (event) => onAssign(event.target.value || null),
-          title: t("detail.project"),
-        },
-          h("option", { value: "" }, t("project.unassigned")),
-          (snapshot.projects ?? []).map((entry) => h("option", { key: entry.id, value: entry.id }, entry.name))),
-        h("button", {
-          type: "button",
-          className: "dsh-inbox-btn",
-          onClick: () => onOpenSession(item.sessionId),
-        }, h(ExternalGlyph, { size: 13 }), t("action.openSession")),
-        !settled && item.readAt === null ? h("button", {
-          type: "button",
-          className: "dsh-inbox-btn dsh-inbox-btn-ghost",
-          onClick: onMarkRead,
-        }, t("action.markRead")) : null)),
-    h("div", { className: "dsh-inbox-detail-body" },
-      settled ? h("div", { className: "dsh-inbox-notice" }, t("detail.settled")) : null,
-      h("dl", { className: "dsh-inbox-kv" },
-        h("dt", null, t("detail.session")), h("dd", null, item.sessionTitle || item.sessionId),
-        h("dt", null, t("detail.project")), h("dd", null, project ?? t("project.unassigned")),
-        h("dt", null, t("detail.time")), h("dd", null, formatDateTime(item.updatedAt))),
-      item.kind === "question" && !settled
-        ? h(QuestionBlock, { item, busy, onSubmit: (payload) => onAnswer(payload), t, disabled: capabilities.questions === false })
-        : null,
-      item.kind === "delivery"
-        ? h(DeliveryBlock, { item, busy, onPreview, onReveal, onSettle, t, canReveal: capabilities.reveal !== false, settled })
-        : null,
-      item.kind === "interruption"
-        ? h(InterruptionBlock, { item, busy, onContinue: (text) => onReply(item, text), onSettle, t, canContinue: capabilities.prompt !== false, settled })
-        : null));
-}
-
 function SettingsDrawer({ snapshot, busy, onClose, onSaveRoots, onRescan, t }) {
   const [roots, setRoots] = React.useState(snapshot.projectRoots ?? []);
   const [draft, setDraft] = React.useState("");
@@ -1075,9 +1187,10 @@ function PreviewModal({ preview, onClose, onReveal, t }) {
 function InboxPage({ useInbox, act, request, openSession, t }) {
   const snapshot = useInbox((value) => value);
   const [filter, setFilter] = React.useState("all");
-  const [projectFilter, setProjectFilter] = React.useState("all");
   const [query, setQuery] = React.useState("");
-  const [selectedId, setSelectedId] = React.useState(null);
+  const [openSessions, setOpenSessions] = React.useState(() => new Set());
+  const [openItems, setOpenItems] = React.useState(() => new Set());
+  const [projectFilter, setProjectFilter] = React.useState("all");
   const [settings, setSettings] = React.useState(false);
   const [busy, setBusy] = React.useState("");
   const [notice, setNotice] = React.useState(null);
@@ -1085,29 +1198,59 @@ function InboxPage({ useInbox, act, request, openSession, t }) {
   const now = snapshot.runtime?.now ?? Date.now();
 
   const items = snapshot.items ?? [];
+  const itemsById = new Map(items.map((item) => [item.id, item]));
   const settledCount = (snapshot.stats?.done ?? 0) + (snapshot.stats?.ignored ?? 0);
+  const archiveCount = snapshot.stats?.archived ?? 0;
   const openCount = snapshot.stats?.open?.total ?? 0;
+  const openSessionCount = (snapshot.threads ?? []).filter((thread) => thread.counts.open > 0).length;
 
-  const visible = items.filter((item) => {
-    if (filter === "settled") {
-      if (item.state === "open") return false;
-    } else {
-      if (item.state !== "open") return false;
-      if (filter !== "all" && item.kind !== filter) return false;
-    }
-    if (projectFilter !== "all") {
-      if (projectFilter === "__none") { if (item.projectId) return false; }
-      else if (item.projectId !== projectFilter) return false;
-    }
-    if (query.trim()) {
-      const needle = query.trim().toLowerCase();
-      const haystack = [item.sessionTitle, itemTitle(item, t), item.delivery?.files?.map((file) => file.path).join(" ") ?? ""]
-        .join(" ").toLowerCase();
-      if (!haystack.includes(needle)) return false;
-    }
-    return true;
+  function itemMatchesFilter(item) {
+    if (filter === "history") return item.state === "archived";
+    if (filter === "settled") return item.state === "done" || item.state === "ignored";
+    if (item.state !== "open") return false;
+    return filter === "all" || item.kind === filter;
+  }
+
+  function threadItemsOf(thread) {
+    return thread.itemIds
+      .map((id) => itemsById.get(id))
+      .filter((item) => item !== undefined && itemMatchesFilter(item));
+  }
+
+  const visibleThreads = (snapshot.threads ?? []).filter((thread) => {
+    if (projectFilter !== "all" && (thread.projectId ?? "__none") !== projectFilter) return false;
+    const matching = threadItemsOf(thread);
+    if (matching.length === 0) return false;
+    if (!query.trim()) return true;
+    const needle = query.trim().toLowerCase();
+    const haystack = [
+      thread.title,
+      ...matching.map((item) => [itemTitle(item, t), item.delivery?.files?.map((file) => file.path).join(" ") ?? ""].join(" ")),
+    ].join(" ").toLowerCase();
+    return haystack.includes(needle);
   });
-  const selected = visible.find((item) => item.id === selectedId) ?? visible[0] ?? null;
+  const projectOptions = (() => {
+    const seen = new Map();
+    for (const thread of snapshot.threads ?? []) {
+      const id = thread.projectId ?? "__none";
+      if (seen.has(id)) continue;
+      const name = id === "__none"
+        ? t("project.unassigned")
+        : ((snapshot.projects ?? []).find((project) => project.id === id)?.name ?? id);
+      seen.set(id, name);
+    }
+    return [...seen.entries()].sort((left, right) => String(left[1]).localeCompare(String(right[1])));
+  })();
+
+  const dayGroups = (() => {
+    const buckets = new Map();
+    for (const thread of visibleThreads) {
+      const bucket = dayBucket(thread.latestAt, now);
+      if (!buckets.has(bucket)) buckets.set(bucket, []);
+      buckets.get(bucket).push(thread);
+    }
+    return [...buckets.entries()].sort((left, right) => left[0] - right[0]);
+  })();
 
   function showNotice(kind, text) {
     setNotice({ kind, text });
@@ -1123,18 +1266,40 @@ function InboxPage({ useInbox, act, request, openSession, t }) {
     }
   }
 
-  async function markRead(item) {
-    if (!item || item.readAt !== null) return;
-    try {
-      await act("inbox.mark-read", { id: item.id });
-    } catch {
-      // Reading is best-effort; the list still shows the item.
+  async function markThreadRead(thread) {
+    const unread = thread.itemIds
+      .map((id) => itemsById.get(id))
+      .filter((item) => item !== undefined && item.state === "open" && item.readAt === null);
+    for (const item of unread) {
+      try {
+        await act("inbox.mark-read", { id: item.id });
+      } catch {
+        // Reading is best-effort; the list still shows the item.
+      }
     }
   }
 
-  function selectItem(item) {
-    setSelectedId(item.id);
-    void markRead(item);
+  function toggleSession(sessionId) {
+    setOpenSessions((current) => {
+      const next = new Set(current);
+      if (next.has(sessionId)) next.delete(sessionId);
+      else next.add(sessionId);
+      return next;
+    });
+  }
+
+  function toggleItem(itemId) {
+    setOpenItems((current) => {
+      const next = new Set(current);
+      if (next.has(itemId)) next.delete(itemId);
+      else next.add(itemId);
+      return next;
+    });
+  }
+
+  function selectThread(thread) {
+    toggleSession(thread.sessionId);
+    void markThreadRead(thread);
   }
 
   async function handleAnswer(payload) {
@@ -1191,12 +1356,12 @@ function InboxPage({ useInbox, act, request, openSession, t }) {
   }
 
   async function handlePreview(item, path) {
-    setPreview({ loading: true, path, data: null, error: null });
+    setPreview({ loading: true, path, item, data: null, error: null });
     try {
       const data = await request("inbox.preview", { sessionId: item.sessionId, path });
-      setPreview({ loading: false, path, data, error: null });
+      setPreview({ loading: false, path, item, data, error: null });
     } catch (failure) {
-      setPreview({ loading: false, path, data: null, error: failure?.message ?? String(failure) });
+      setPreview({ loading: false, path, item, data: null, error: failure?.message ?? String(failure) });
     }
   }
 
@@ -1250,21 +1415,22 @@ function InboxPage({ useInbox, act, request, openSession, t }) {
   const capabilities = runtime.capabilities ?? {};
   return h("div", { className: "dsh-inbox-page" },
     h("header", { className: "dsh-inbox-header" },
-      h("div", { className: "dsh-inbox-title" },
-        h("h1", null, t("title")),
-        h("div", { className: "dsh-inbox-subtitle" }, t("subtitle")),
-        h("div", { className: "dsh-inbox-detail-meta" },
-          h("span", { className: "dsh-inbox-tag" }, t("stats.open", { count: openCount })),
-          h("span", { className: "dsh-inbox-tag" }, t("stats.unread", { count: snapshot.stats?.open?.unread ?? 0 })),
-          runtime.scanning ? h("span", { className: "dsh-inbox-tag" }, t("settings.scanning")) : null)),
-      h("div", { className: "dsh-inbox-header-actions" },
+      h("div", { className: "dsh-inbox-brand" },
+        h("div", { className: "dsh-inbox-title" },
+          h("h1", null, t("title")),
+          h("span", { className: "dsh-inbox-subtitle" }, t("subtitle"))),
+        runtime.scanning ? h("span", { className: "dsh-inbox-scan" }, t("settings.scanning")) : null),
+      h("div", { className: "dsh-inbox-head-right" },
+        h("div", { className: "dsh-inbox-stats" },
+          h("div", { className: "dsh-inbox-stat" }, h("b", null, String(openCount)), h("span", null, t("stats.pending"))),
+          h("div", { className: "dsh-inbox-stat" }, h("b", null, String(openSessionCount)), h("span", null, t("stats.sessions")))),
+        h("div", { className: "dsh-inbox-header-actions" },
         h("button", { type: "button", className: "dsh-inbox-btn", disabled: busy === "refresh", onClick: () => run("refresh", async () => { try { await act("inbox.snapshot", {}); } catch (failure) { showNotice("error", t("error.action", { message: failure?.message ?? String(failure) })); } }) },
           h(RefreshGlyph, { size: 13 }), busy === "refresh" ? t("action.refreshing") : t("action.refresh")),
         h("button", { type: "button", className: "dsh-inbox-btn", onClick: handleMarkAllRead }, h(CheckGlyph, { size: 13 }), t("action.markAllRead")),
-        h("button", { type: "button", className: "dsh-inbox-btn", onClick: () => setSettings(true) }, h(GearGlyph, { size: 13 }), t("action.settings")))),
+        h("button", { type: "button", className: "dsh-inbox-btn", onClick: () => setSettings(true) }, h(GearGlyph, { size: 13 }), t("action.settings"))))),
     snapshot.loading && items.length === 0
       ? h("div", { className: "dsh-inbox-layout" },
-          h("div", { className: "dsh-inbox-rail" }, h("div", { className: "dsh-inbox-skeleton" }), h("div", { className: "dsh-inbox-skeleton" })),
           h("div", { className: "dsh-inbox-list-pane" }, h("div", { className: "dsh-inbox-skeleton" }), h("div", { className: "dsh-inbox-skeleton" }), h("div", { className: "dsh-inbox-skeleton" })),
           h("div", { className: "dsh-inbox-detail" }, h("div", { className: "dsh-inbox-skeleton", style: { height: "80%" } })))
       : null,
@@ -1279,59 +1445,65 @@ function InboxPage({ useInbox, act, request, openSession, t }) {
           h("span", null, t("empty.setup")),
           h("button", { type: "button", className: "dsh-inbox-btn dsh-inbox-btn-mini", onClick: () => setSettings(true) }, t("action.settings")))
       : null,
-    h("div", { className: "dsh-inbox-layout" },
-      h(ProjectRail, { snapshot, items, projectFilter, onProject: (value) => { setProjectFilter(value); setFilter("all"); }, t }),
-      h("section", { className: "dsh-inbox-list-pane" },
-        h("div", { className: "dsh-inbox-filters", role: "tablist" },
-          [["all", t("filter.all"), snapshot.stats?.open?.total ?? 0],
-            ["question", t("filter.question"), snapshot.stats?.open?.question ?? 0],
-            ["delivery", t("filter.delivery"), snapshot.stats?.open?.delivery ?? 0],
-            ["interruption", t("filter.interruption"), snapshot.stats?.open?.interruption ?? 0],
-            ["settled", t("filter.settled"), settledCount]].map(([value, label, count]) => h("button", {
-              type: "button",
-              key: value,
-              className: "dsh-inbox-chip",
-              role: "tab",
-              "aria-selected": filter === value,
-              onClick: () => setFilter(value),
-            }, label, h("span", { className: "dsh-inbox-chip-count" }, String(count))))),
-        h("div", { className: "dsh-inbox-search" },
-          h("input", {
-            className: "dsh-inbox-input",
-            value: query,
-            placeholder: t("search.placeholder"),
-            onChange: (event) => setQuery(event.target.value),
-          })),
-        h("div", { className: "dsh-inbox-items" },
-          visible.length === 0
-            ? h("div", { className: "dsh-inbox-empty" },
-                h(InboxGlyph, { size: 28 }),
-                h("span", null, filter === "settled" ? t("empty.settled") : (query || projectFilter !== "all" || filter !== "all" ? t("empty.filter") : t("empty.all"))),
-                h("span", { className: "dsh-inbox-empty-hint" }, t("empty.hint")))
-            : visible.map((item) => h(ItemRow, {
-                key: item.id,
-                item,
-                selected: selected?.id === item.id,
-                projectLabel: projectName(snapshot, item.projectId),
-                onSelect: selectItem,
-                t,
-                now,
-              })))),
-      h(DetailPane, {
-        item: selected,
-        snapshot,
-        busy,
-        onOpenSession: openCurrentSession,
-        onSettle: (action) => selected ? handleSettle(selected, action) : undefined,
-        onAnswer: handleAnswer,
-        onReply: handleReply,
-        onPreview: (path) => selected ? handlePreview(selected, path) : undefined,
-        onReveal: (path) => selected ? handleReveal(selected, path) : undefined,
-        onAssign: (projectId) => selected ? handleAssign(selected, projectId) : undefined,
-        onMarkRead: () => selected ? markRead(selected) : undefined,
-        t,
-        now,
-      })),
+    h("div", { className: "dsh-inbox-toolbar" },
+      h("div", { className: "dsh-inbox-filters", role: "tablist" },
+        [["all", t("filter.all"), snapshot.stats?.open?.total ?? 0],
+          ["question", t("filter.question"), snapshot.stats?.open?.question ?? 0],
+          ["delivery", t("filter.delivery"), snapshot.stats?.open?.delivery ?? 0],
+          ["interruption", t("filter.interruption"), snapshot.stats?.open?.interruption ?? 0],
+          ["settled", t("filter.settled"), settledCount],
+          ["history", t("filter.history"), archiveCount]].map(([value, label, count]) => h("button", {
+            type: "button",
+            key: value,
+            className: "dsh-inbox-chip",
+            role: "tab",
+            "aria-selected": filter === value,
+            onClick: () => setFilter(value),
+          }, label, h("span", { className: "dsh-inbox-chip-count" }, String(count))))),
+      h("label", { className: "dsh-inbox-search" },
+        h(SearchGlyph, { size: 14 }),
+        h("input", {
+          className: "dsh-inbox-input",
+          value: query,
+          placeholder: t("search.placeholder"),
+          onChange: (event) => setQuery(event.target.value),
+        })),
+      h("select", {
+        className: "dsh-inbox-select dsh-inbox-project-filter",
+        value: projectFilter,
+        onChange: (event) => setProjectFilter(event.target.value),
+        title: t("settings.projects"),
+      },
+        h("option", { value: "all" }, t("project.all")),
+        projectOptions.map(([id, name]) => h("option", { key: id, value: id }, name)))),
+    h("div", { className: "dsh-inbox-feed" },
+      visibleThreads.length === 0
+        ? h("div", { className: "dsh-inbox-empty" },
+            h(InboxGlyph, { size: 28 }),
+            h("span", null, filter === "history" ? t("empty.history") : filter === "settled" ? t("empty.settled") : (query || filter !== "all" ? t("empty.filter") : t("empty.all"))),
+            h("span", { className: "dsh-inbox-empty-hint" }, t("empty.hint")))
+        : dayGroups.map(([bucket, threads]) => h("section", { key: bucket, className: "dsh-inbox-day" },
+            h("div", { className: "dsh-inbox-day-label" },
+              h("span", null, t(DAY_LABEL_KEYS[bucket])),
+              h("span", { className: "dsh-inbox-day-count" }, t("day.sessions", { count: threads.length }))),
+            threads.map((thread) => h(SessionSheet, {
+              key: thread.sessionId,
+              thread,
+              entries: threadItemsOf(thread),
+              open: openSessions.has(thread.sessionId),
+              openItems,
+              onToggle: () => selectThread(thread),
+              onToggleItem: toggleItem,
+              busy,
+              onSettle: handleSettle,
+              onAnswer: handleAnswer,
+              onReply: handleReply,
+              onPreview: handlePreview,
+              onReveal: handleReveal,
+              t,
+              now: snapshot.runtime?.now ?? now,
+              capabilities: snapshot.runtime?.capabilities ?? {},
+            }))))),
     settings ? h(SettingsDrawer, {
       snapshot,
       busy,
@@ -1343,7 +1515,7 @@ function InboxPage({ useInbox, act, request, openSession, t }) {
     preview ? h(PreviewModal, {
       preview,
       onClose: () => setPreview(null),
-      onReveal: (path) => selected ? handleReveal(selected, path) : undefined,
+      onReveal: (path) => preview?.item ? handleReveal(preview.item, path) : undefined,
       t,
     }) : null,
     h(Toast, { notice, onClose: () => setNotice(null) }));

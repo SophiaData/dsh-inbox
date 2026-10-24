@@ -137,3 +137,43 @@ test('pruning keeps open items and recent settled items', async () => {
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test('archiveBefore moves stale open items to archived without settling newer ones', async () => {
+  const { dir, store } = await tempStore();
+  try {
+    store.upsertItem(questionItem('question:stale', { createdAt: 100, updatedAt: 100 }));
+    store.upsertItem(questionItem('question:fresh', { createdAt: 950, updatedAt: 950 }));
+    const changed = store.archiveBefore(500, 'backfill');
+    assert.equal(changed, 1);
+    assert.equal(store.get('question:stale').state, 'archived');
+    assert.equal(store.get('question:stale').settledBy, 'backfill');
+    assert.equal(store.get('question:fresh').state, 'open');
+    const stats = store.stats();
+    assert.equal(stats.open.total, 1);
+    assert.equal(stats.archived, 1);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('snapshot groups items into one thread per session', async () => {
+  const { dir, store } = await tempStore();
+  try {
+    store.upsertItem(questionItem('question:s1:c1', { sessionId: 's1', updatedAt: 100 }));
+    store.upsertItem(questionItem('question:s1:c2', { sessionId: 's1', updatedAt: 200 }));
+    store.upsertItem(questionItem('question:s2:c1', { sessionId: 's2', updatedAt: 300, createdAt: 50 }));
+    store.archiveBefore(60);
+    const snapshot = store.snapshot();
+    assert.equal(snapshot.threads.length, 2);
+    const first = snapshot.threads.find(thread => thread.sessionId === 's1');
+    assert.equal(first.counts.open, 2);
+    assert.equal(first.counts.question, 2);
+    assert.equal(first.itemIds.length, 2);
+    assert.equal(first.itemIds[0], 'question:s1:c2');
+    const second = snapshot.threads.find(thread => thread.sessionId === 's2');
+    assert.equal(second.counts.open, 0);
+    assert.equal(second.counts.archived, 1);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});

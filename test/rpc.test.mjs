@@ -1,9 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { apply } from '../index.js';
+
+const pluginVersion = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')).version;
 
 function driveEffect(fn) {
   const result = fn();
@@ -66,7 +68,7 @@ test('host apply registers the inbox RPC surface and answers an owner snapshot',
     assert.equal(body.rpcId, 'rpc-1');
     assert.equal(body.result.ok, true);
     assert.ok(Array.isArray(body.result.value.items));
-    assert.equal(body.result.value.runtime.pluginVersion, '0.1.0');
+    assert.equal(body.result.value.runtime.pluginVersion, pluginVersion);
   } finally {
     for (const cleanup of cleanups) cleanup();
     await new Promise(resolve => setTimeout(resolve, 20));

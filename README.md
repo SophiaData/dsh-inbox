@@ -16,6 +16,8 @@ DSH 原生的待办分散在各自会话里：问题只在当前会话输入框�
 - **自动归组**：扫描你配置的项目目录，按会话 `cwd`、标题、首条用户消息判断归属；判断不出来就落在「未分配」，可手动指定，手动优先。
 - **原地处理**：在面板里回答 continued 问题、给中断会话补一句话继续、预览并查收交付、忽略不需要的条目；需要时可一键跳回原会话。
 - **中断补报**：监听 `turn/end` 的 `error` / `interrupted`，并在启动时回扫最近会话；对于日志里有 `turn/start` 却没有 `turn/end`、且会话不在运行的冷会话，补一条「未闭合回合」告警。重启前发生的中断也能补出来。
+- **按会话聚合**：列表按「今天 / 昨天 / 本周 / 更早」的时间流铺开，一行一个会话，显示该会话的待处理数量与类型；点开看它下面的全部问题、交付和中断，不再被同一会话的多条记录刷屏。
+- **历史不占待办**：超过 `backfillDays`（默认 7 天）的条目自动归档，只在「历史」筛选里可见，不进入待处理统计。
 
 ## 安装
 
@@ -24,7 +26,7 @@ DSH 原生的待办分散在各自会话里：问题只在当前会话输入框�
 在 DSH 的插件管理器里添加 Bundle：
 
 ```text
-https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.0
+https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.1
 ```
 
 桌面版的 Profile 由 Electron 管理，不要用下面的 CLI 命令向 `desktop` Profile 安装。
@@ -33,13 +35,13 @@ https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.0
 
 ```sh
 dsh plugin --profile web add \
-  "https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.0" \
+  "https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.1" \
   --registry https://registry.npmjs.org/
 ```
 
 把 `web` 换成目标 Profile。使用 HTTPS 源码包可以避开 Git/SSH 的 `Host key verification failed`。安装返回 `restart-required` 时，重启 DSH 生效。
 
-`v0.1.0` 是发布 tag，装的是固定版本；升级时把 tag 换成最新版本（见仓库 Releases）。想跟随主干可改用 `refs/heads/main`。
+`v0.1.1` 是发布 tag，装的是固定版本；升级时把 tag 换成最新版本（见仓库 Releases）。想跟随主干可改用 `refs/heads/main`。
 
 本地开发也可以直接挂载 checkout：
 
@@ -69,6 +71,7 @@ dsh plugin --profile web add E:\dsh-inbox
           - E:\dev-day
           - E:\dw-modeling-template
         lookbackDays: 30
+        backfillDays: 7
         scanIntervalSeconds: 60
 ```
 
@@ -128,6 +131,8 @@ DSH 0.2.1-rc.2 的官方远程接口只允许对 **continued** 问题调用 `use
 - **自动归组是启发式**：标题/首条消息里同时出现多个项目名时保持未分配，避免猜错；手动指定永远优先。
 - **冷会话首次扫描有成本**：全量回扫会 `inspect` 最近会话；`maxSessions` 默认 300，可用 `lookbackDays` / `maxSessions` 收紧。
 - **桌面版与 CLI 的 Profile 不同**：桌面版请在插件管理器安装，不要对 `desktop` Profile 跑 `dsh plugin`。
+- **历史自动归档**：`createdAt` 早于 `backfillDays`（默认 7 天）的条目会转为「历史」，不占待处理；想回溯更久就调大该值，想更干净就调小。
+- **聚合粒度是会话**：同一会话的多条事件在一行里展示，忽略/结算仍按单条处理。
 
 ## 开发
 

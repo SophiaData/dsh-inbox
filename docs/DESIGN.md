@@ -23,7 +23,7 @@
 
 | 用途 | 契约 | 出处 |
 | --- | --- | --- |
-| 枚举会话 | `ctx.sessionController.list({}, signal)` → `SessionSummary[]` | `packages/api/session-controller/src/index.ts` |
+| 枚举会话 | `ctx.sessionController.list({}, signal)` → `{ items: SessionSummary[] }`（0.2.1-rc.2；旧实现返回裸数组，已兼容） | `packages/api/session-controller/src/index.ts` |
 | 冷读日志 | `ctx.sessionController.inspect(sessionId, signal)` → `{ meta, events }` | 同上 |
 | 读投影 | `ctx.sessionController.projections({ sessionId }, signal)` → `{ kind, values }` | 同上 |
 | 恢复 Agent | `ctx.sessionController.resolveAgent(sessionId)` → `{ agent }` / `{ error }` | `packages/api/session-controller/src/agent.ts` |
@@ -79,10 +79,14 @@ open ── 用户回答/查收/继续/知道了 ──> done
   │
   ├── 用户忽略 ──> ignored
   │
+  ├── createdAt 早于 backfillDays 窗口 ──> archived (settledBy=backfill，只在「历史」筛选可见)
+  │
   └── 问题在别处被回答（权威投影不再列出）──> done (settledBy=system, reason=answered)
 ```
 
-`readAt` 与 `state` 正交。`upsertItem` 对已结算条目不重开，避免同一 turn/call 反复提醒。
+`readAt` 与 `state` 正交。`upsertItem` 对已结算（含 archived）条目不重开，避免同一 turn/call 反复提醒。
+
+快照另带 `threads`：按 `sessionId` 聚合条目，给出 `open/unread/question/delivery/interruption/archived/settled` 计数与 `itemIds`。面板渲染 thread，条目仍是唯一事实源。
 
 ## 扫描算法
 

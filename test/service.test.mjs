@@ -52,7 +52,7 @@ function questionProjection() {
   };
 }
 
-async function makeService({ events = eventsFor(), projection = questionProjection(), running = false } = {}) {
+async function makeService({ events = eventsFor(), projection = questionProjection(), running = false, listing = 'items', config = {}, clock = () => 2000 } = {}) {
   const dir = await mkdtemp(join(tmpdir(), 'dsh-inbox-service-'));
   const root = join(dir, 'projects');
   const projectPath = join(root, 'alpha');
@@ -62,7 +62,11 @@ async function makeService({ events = eventsFor(), projection = questionProjecti
 
   const calls = { prompts: [], answers: [], revealed: [], signals: [] };
   const controller = {
-    list: async (_request, signal) => { calls.signals.push(signal); return [summary({ running, cwd: projectPath })]; },
+    list: async (_request, signal) => {
+      calls.signals.push(signal);
+      const items = [summary({ running, cwd: projectPath })];
+      return listing === 'array' ? items : { items };
+    },
     inspect: async (_sessionId, signal) => { calls.signals.push(signal); return ({ events }); },
     projections: async (_request, signal) => { calls.signals.push(signal); return projection; },
     resolveAgent: async (sessionId) => ({ agent: { id: sessionId } }),
@@ -85,12 +89,39 @@ async function makeService({ events = eventsFor(), projection = questionProjecti
     on() { return () => {}; },
     logger: { warn() {}, info() {} },
   };
-  const service = new InboxService(ctx, {}, { stateFile: join(dir, 'state.json'), clock: () => 2000 });
+  const service = new InboxService(ctx, config, { stateFile: join(dir, 'state.json'), clock });
   await service.store.load();
   service.store.setRoots([root]);
   await service.refreshProjects();
   return { service, calls, dir, root };
 }
+
+test('accepts a legacy bare-array session listing', async () => {
+  const { service } = await makeService({ listing: 'array' });
+  try {
+    await service.scanNow({ full: true });
+    assert.equal(Object.keys(service.snapshot().sessions).length, 1);
+  } finally {
+    await service.dispose();
+  }
+});
+
+test('scan archives backfilled items older than the backfill window', async () => {
+  const DAY = 86_400_000;
+  const { service } = await makeService({ clock: () => 1000 + 8 * DAY, config: { backfillDays: 7 } });
+  try {
+    await service.scanNow({ full: true });
+    const snapshot = service.snapshot();
+    assert.ok(snapshot.stats.archived >= 2);
+    const interruption = snapshot.items.find(item => item.kind === 'interruption');
+    const delivery = snapshot.items.find(item => item.kind === 'delivery');
+    assert.equal(interruption.state, 'archived');
+    assert.equal(delivery.state, 'archived');
+    assert.ok(snapshot.threads.every(thread => thread.counts.open === thread.counts.question));
+  } finally {
+    await service.dispose();
+  }
+});
 
 test('scan backfills delivery, question, and interruption items', async () => {
   const { service, calls, dir } = await makeService();

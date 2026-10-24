@@ -10,6 +10,7 @@ const rpcPrefix = 'dsh-inbox.';
 export const Config = z.object({
   projectRoots: z.array(z.string()).default([]),
   lookbackDays: z.number().default(30),
+  backfillDays: z.number().default(7),
   maxSessions: z.number().default(300),
   includeSubagents: z.boolean().default(false),
   scanIntervalSeconds: z.number().default(60),

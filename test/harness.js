@@ -76,17 +76,46 @@ const items = [
     interruption: { kind: "open-turn", turn: 1, error: null, seq: 30, time: null, detectedAt: now - 26 * 3600000 },
   },
 ];
+const threads = (() => {
+  const map = new Map();
+  for (const item of items) {
+    const key = item.sessionId;
+    if (!map.has(key)) {
+      map.set(key, {
+        sessionId: key,
+        title: item.sessionTitle,
+        cwd: item.cwd,
+        projectId: item.projectId,
+        counts: { open: 0, unread: 0, question: 0, delivery: 0, interruption: 0, archived: 0, settled: 0 },
+        latestAt: 0,
+        itemIds: [],
+      });
+    }
+    const thread = map.get(key);
+    thread.latestAt = Math.max(thread.latestAt, item.updatedAt ?? 0);
+    thread.itemIds.push(item.id);
+    if (item.state === "archived") thread.counts.archived += 1;
+    else if (item.state === "open") {
+      thread.counts.open += 1;
+      if (item.readAt === null) thread.counts.unread += 1;
+      thread.counts[item.kind] += 1;
+    } else thread.counts.settled += 1;
+  }
+  return [...map.values()];
+})();
 const snapshot = {
   version: 1,
   projectRoots: ["E:/dw-modeling-template", "E:/dev-day"],
   projects,
   assignments: {},
   sessions: {},
+  threads,
   items,
   stats: {
     open: { total: 5, unread: 3, question: 2, delivery: 2, interruption: 1 },
     done: 1,
     ignored: 0,
+    archived: 0,
   },
   meta: { lastScanAt: now - 180000, lastError: null, scans: 42, lastScanReason: "interval" },
   runtime: {
