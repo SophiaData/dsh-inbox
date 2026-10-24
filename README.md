@@ -1,5 +1,7 @@
 # dsh-inbox
 
+> 仓库名 `dsh-inbox`，npm 包名 `dsh-inbox-plugin`（`dsh-inbox` 在 npm 上已被他人占用）。
+
 DSH（DeepSeek Harness）插件：把**等你回答的问题、等你查收的交付、以及中断的回合**汇总到一个跨项目收件箱里，并在面板内直接处理。
 
 适配基线：**DSH 0.2.1-rc.2**（npm `latest`），兼容探测 **0.2.1-rc.3**（npm `next`，2026-10-23 发布）。DSH 0.2.1-rc.2 的 `ui-user-questions` 明确把「跨会话问题收件箱」列为未建能力；本插件补的就是这一块。
@@ -59,7 +61,7 @@ dsh plugin --profile web add E:\dsh-inbox
 ```yaml
 - insert:
     - id: dsh-inbox
-      name: dsh-inbox
+      name: dsh-inbox-plugin
       config:
         projectRoots:
           - E:\dev-day

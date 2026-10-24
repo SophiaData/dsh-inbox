@@ -48,7 +48,7 @@ async function loadClient() {
 
 test('client bundle loads as a module-loader plugin', async () => {
   const { loaded } = await loadClient();
-  assert.equal(loaded.id, 'dsh-inbox');
+  assert.equal(loaded.id, 'dsh-inbox-plugin');
   assert.deepEqual([...loaded.exports.inject], ['slots', 'connection']);
   assert.equal(typeof loaded.exports.apply, 'function');
 });

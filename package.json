@@ -1,5 +1,5 @@
 {
-  "name": "dsh-inbox",
+  "name": "dsh-inbox-plugin",
   "version": "0.1.0",
   "description": "DeepSeek Harness plugin: a cross-project inbox for pending questions, deliverables, and interrupted turns.",
   "type": "module",

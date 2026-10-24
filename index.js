@@ -1,7 +1,7 @@
 import z from '@deepseek-ai/schemastery';
 import { InboxError, InboxService } from './lib/service.js';
 
-export const name = 'dsh-inbox';
+export const name = 'dsh-inbox-plugin';
 export const inject = [];
 
 const rpcPrefix = 'dsh-inbox.';

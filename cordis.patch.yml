@@ -1,5 +1,5 @@
 - insert:
     - id: dsh-inbox
-      name: dsh-inbox
+      name: dsh-inbox-plugin
       config:
         projectRoots: []

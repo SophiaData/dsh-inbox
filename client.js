@@ -1,4 +1,4 @@
-window.__ModuleLoader__.load({ id: "dsh-inbox", factory: (require) => {
+window.__ModuleLoader__.load({ id: "dsh-inbox-plugin", factory: (require) => {
 var module = { exports: {} }; var exports = module.exports;
 const React = require("react");
 const h = React.createElement;
