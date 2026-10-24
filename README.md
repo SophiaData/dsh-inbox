@@ -26,7 +26,7 @@ DSH 原生的待办分散在各自会话里：问题只在当前会话输入框�
 在 DSH 的插件管理器里添加 Bundle：
 
 ```text
-https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.2
+https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.3
 ```
 
 桌面版的 Profile 由 Electron 管理，不要用下面的 CLI 命令向 `desktop` Profile 安装。
@@ -35,13 +35,13 @@ https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.2
 
 ```sh
 dsh plugin --profile web add \
-  "https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.2" \
+  "https://codeload.github.com/SophiaData/dsh-inbox/tar.gz/refs/tags/v0.1.3" \
   --registry https://registry.npmjs.org/
 ```
 
 把 `web` 换成目标 Profile。使用 HTTPS 源码包可以避开 Git/SSH 的 `Host key verification failed`。安装返回 `restart-required` 时，重启 DSH 生效。
 
-`v0.1.2` 是发布 tag，装的是固定版本；升级时把 tag 换成最新版本（见仓库 Releases）。想跟随主干可改用 `refs/heads/main`。
+`v0.1.3` 是发布 tag，装的是固定版本；升级时把 tag 换成最新版本（见仓库 Releases）。想跟随主干可改用 `refs/heads/main`。
 
 本地开发也可以直接挂载 checkout：
 

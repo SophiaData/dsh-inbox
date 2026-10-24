@@ -479,14 +479,17 @@ const css = `
 .dsh-inbox-search{flex:1;min-width:170px;display:flex;align-items:center;gap:6px;padding:0 10px;height:32px;border:1px solid var(--dsw-alias-border-l1,#E5E7EB);border-radius:8px;background:var(--dsw-alias-bg-layer-2,#FAFAFA);color:var(--dsw-alias-label-tertiary,#9CA3AF);}
 .dsh-inbox-search .dsh-inbox-input{border:0;padding:0;height:auto;background:transparent;outline:none;}
 .dsh-inbox-project-filter{max-width:190px;height:32px;border-radius:8px;}
-.dsh-inbox-sheet-head:focus-visible,.dsh-inbox-entry-head:focus-visible,.dsh-inbox-chip:focus-visible,.dsh-inbox-btn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#2563EB);outline-offset:-2px;}
+.dsh-inbox-sheet-toggle:focus-visible,.dsh-inbox-sheet-open:focus-visible,.dsh-inbox-entry-head:focus-visible,.dsh-inbox-chip:focus-visible,.dsh-inbox-btn:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#2563EB);outline-offset:-2px;}
 .dsh-inbox-feed{display:flex;flex-direction:column;padding-top:6px;}
 .dsh-inbox-day{display:flex;flex-direction:column;}
 .dsh-inbox-day-label{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:24px 4px 10px;font-size:12px;font-weight:600;color:var(--dsw-alias-label-tertiary,#9CA3AF);}
 .dsh-inbox-day-count{font-size:11px;font-weight:500;}
 .dsh-inbox-sheet{border:1px solid var(--dsw-alias-border-l1,#E5E7EB);border-radius:14px;background:var(--dsw-alias-bg-layer-1,#fff);margin-bottom:9px;box-shadow:0 1px 2px rgba(17,24,39,.04);overflow:hidden;}
-.dsh-inbox-sheet-head{display:grid;grid-template-columns:4px minmax(0,1fr) auto;gap:16px;align-items:center;width:100%;padding:15px 18px;border:0;background:transparent;cursor:pointer;text-align:left;font:inherit;color:inherit;}
-.dsh-inbox-sheet-head:hover{background:var(--dsw-alias-bg-layer-2,#FAFAFA);}
+.dsh-inbox-sheet-head{display:flex;align-items:center;padding-right:10px;}
+.dsh-inbox-sheet-toggle{flex:1;min-width:0;display:grid;grid-template-columns:4px minmax(0,1fr) auto;gap:16px;align-items:center;padding:15px 8px 15px 18px;border:0;background:transparent;cursor:pointer;text-align:left;font:inherit;color:inherit;}
+.dsh-inbox-sheet-toggle:hover{background:var(--dsw-alias-bg-layer-2,#FAFAFA);}
+.dsh-inbox-sheet-open{flex:0 0 auto;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--dsw-alias-label-tertiary,#9CA3AF);cursor:pointer;}
+.dsh-inbox-sheet-open:hover{border-color:var(--dsw-alias-border-l1,#E5E7EB);color:var(--dsw-alias-label-primary,#111827);background:var(--dsw-alias-bg-layer-2,#F3F4F6);}
 .dsh-inbox-band{width:4px;height:34px;border-radius:2px;background:var(--dsw-alias-label-tertiary,#9CA3AF);}
 .dsh-inbox-band.k-question{background:var(--dsw-alias-brand-primary,#2563EB);}
 .dsh-inbox-band.k-interruption{background:var(--dsw-alias-state-error-primary,#DC2626);}
@@ -524,7 +527,7 @@ const css = `
 .dsh-inbox-page{padding:20px 16px 48px;}
 .dsh-inbox-head-right{gap:14px;}
 .dsh-inbox-stats{gap:16px;}
-.dsh-inbox-sheet-head{gap:12px;padding:13px 14px;}
+.dsh-inbox-sheet-toggle{gap:12px;padding:13px 6px 13px 14px;}
 .dsh-inbox-sheet-counts{display:none;}
 .dsh-inbox-sheet-time{display:none;}
 .dsh-inbox-search{min-width:0;}
@@ -846,11 +849,12 @@ function FeedEntry({ item, open, onToggle, busy, onSettle, onAnswer, onReply, on
       : null);
 }
 
-function SessionSheet({ thread, entries, open, openItems, onToggle, onToggleItem, busy, onSettle, onAnswer, onReply, onPreview, onReveal, t, capabilities, now }) {
+function SessionSheet({ thread, entries, open, openItems, onToggle, onToggleItem, onOpenSession, busy, onSettle, onAnswer, onReply, onPreview, onReveal, t, capabilities, now }) {
   const latest = entries[0];
   const dominant = thread.counts.question > 0 ? "question" : thread.counts.interruption > 0 ? "interruption" : thread.counts.delivery > 0 ? "delivery" : "settled";
   return h("article", { className: cx("dsh-inbox-sheet", open && "is-open") },
-    h("button", { type: "button", className: "dsh-inbox-sheet-head", "aria-expanded": open, onClick: onToggle },
+    h("div", { className: "dsh-inbox-sheet-head" },
+      h("button", { type: "button", className: "dsh-inbox-sheet-toggle", "aria-expanded": open, onClick: onToggle },
       h("span", { className: cx("dsh-inbox-band", `k-${dominant}`) }),
       h("span", { className: "dsh-inbox-sheet-main" },
         h("span", { className: "dsh-inbox-sheet-titleline" },
@@ -870,6 +874,13 @@ function SessionSheet({ thread, entries, open, openItems, onToggle, onToggleItem
             }, `${kindLabel(kind, t)} ${count}`))),
         h("time", { className: "dsh-inbox-sheet-time" }, formatClock(thread.latestAt)),
         h("span", { className: "dsh-inbox-chevron" }, open ? "−" : "+"))),
+      h("button", {
+        type: "button",
+        className: "dsh-inbox-sheet-open",
+        title: t("action.openSession"),
+        "aria-label": t("action.openSession"),
+        onClick: () => onOpenSession(thread.sessionId),
+      }, h(ExternalGlyph, { size: 14 }))),
     open
       ? h("div", { className: "dsh-inbox-sheet-body" },
           entries.map((item) => h(FeedEntry, {
@@ -1504,6 +1515,7 @@ function InboxPage({ useInbox, act, request, openSession, t }) {
               openItems,
               onToggle: () => selectThread(thread),
               onToggleItem: toggleItem,
+              onOpenSession: openCurrentSession,
               busy,
               onSettle: handleSettle,
               onAnswer: handleAnswer,
