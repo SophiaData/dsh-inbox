@@ -140,7 +140,7 @@ DSH 0.2.1-rc.2 的官方远程接口只允许对 **continued** 问题调用 `use
 
 ```sh
 npm install
-npm test          # 31 个单测/集成测试
+npm test          # 39 个测试：单测、Host 集成、面板渲染
 npm run check     # 语法检查
 npm run pack:check
 ```
